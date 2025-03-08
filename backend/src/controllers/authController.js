@@ -1,23 +1,8 @@
 // Authentication controller
-const jwt = require('jsonwebtoken');
 const db = require('../models');
 const { logger } = require('../utils/logger');
 const User = db.User;
-
-// Generate JWT token
-const generateToken = (user) => {
-  return jwt.sign(
-    { 
-      id: user.id, 
-      username: user.username, 
-      role: user.role 
-    },
-    process.env.JWT_SECRET,
-    { 
-      expiresIn: '24h' 
-    }
-  );
-};
+const { generateToken } = require('../utils/token'); // Import the function
 
 // Login controller
 const login = async (req, res) => {
