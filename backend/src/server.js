@@ -1,5 +1,4 @@
-// Main server file
-require('dotenv').config(); // Load environment variables
+require('dotenv').config(); 
 
 const express = require('express');
 const cors = require('cors');
@@ -9,7 +8,8 @@ const db = require('./models');
 const http = require('http');
 const socketIo = require('socket.io');
 
-// Initialize Express app
+const authRoutes = require('./routes/authRoutes');
+
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
@@ -26,9 +26,20 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static files from uploads directory
 app.use('/uploads', express.static('uploads'));
 
+app.use('/api/auth', authRoutes);
+
 // Basic route for testing
 app.get('/', (req, res) => {
   res.send('Restaurant Management System API is running');
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  logger.error(`API error: ${err.message}`);
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || 'Something went wrong on the server'
+  });
 });
 
 // Setup Socket.io
@@ -55,7 +66,7 @@ const startServer = async () => {
     await db.sync(false); // Pass true to force sync (drops tables)
     
     // Initialize with test data
-    await db.initData();
+    //await db.initData();
     
     // Start the server
     server.listen(PORT, () => {
